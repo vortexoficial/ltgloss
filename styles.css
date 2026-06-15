@@ -1268,6 +1268,39 @@ input:focus-visible {
   color: var(--terracotta);
 }
 
+@media (min-width: 801px) {
+  .offers__grid {
+    align-items: start;
+  }
+
+  .offer-card__content {
+    padding-top: 20px;
+  }
+
+  .offer-card__promo,
+  .offer-card__shade {
+    margin-bottom: 10px;
+  }
+
+  .offer-card__content h3 {
+    margin-bottom: 9px;
+  }
+
+  .offer-card__content p {
+    min-height: 3.2em;
+    margin-bottom: 16px;
+  }
+
+  .offer-card__price {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+
+  .offer-card__cta {
+    min-height: 48px;
+  }
+}
+
 .faq {
   display: grid;
   grid-template-columns: 0.72fr 1.28fr;
