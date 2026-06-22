@@ -884,7 +884,7 @@ input:focus-visible {
 
 .offers__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: clamp(14px, 1.8vw, 24px);
   align-items: stretch;
 }
@@ -946,12 +946,43 @@ input:focus-visible {
   --offer-glow: rgba(205, 145, 76, 0.3);
 }
 
+.offer-card--cacao-kit {
+  --offer-accent: #8a3d1f;
+  --offer-accent-dark: #35150d;
+  --offer-glow: rgba(91, 37, 20, 0.27);
+  border-color: rgba(123, 53, 27, 0.35);
+  background:
+    radial-gradient(circle at 90% 90%, rgba(199, 124, 92, 0.22), transparent 38%),
+    var(--white);
+  box-shadow:
+    0 0 0 3px rgba(123, 53, 27, 0.12),
+    0 22px 60px rgba(117, 64, 46, 0.22);
+}
+
 .offer-card--sun:hover,
 .offer-card--cacao:hover,
 .offer-card--veil:hover,
-.offer-card--kit:hover {
+.offer-card--kit:hover,
+.offer-card--cacao-kit:hover {
   border-color: var(--offer-accent);
   box-shadow: 0 26px 64px var(--offer-glow);
+}
+
+.offer-card--cacao-kit .offer-card__tag,
+.offer-card--cacao-kit .offer-card__promo {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: linear-gradient(135deg, var(--offer-accent), var(--offer-accent-dark));
+  box-shadow: 0 8px 18px var(--offer-glow);
+  color: var(--white);
+}
+
+.offer-card--cacao-kit .offer-card__cta {
+  background: linear-gradient(135deg, var(--offer-accent), var(--offer-accent-dark));
+  box-shadow: 0 12px 24px var(--offer-glow);
+}
+
+.offer-card--cacao-kit .offer-card__media img {
+  object-position: center;
 }
 
 .offer-card__media {
