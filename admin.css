@@ -40,6 +40,24 @@ body.admin {
   background: var(--primary-light);
 }
 
+/* Ícones (Lucide — traço 2, pontas arredondadas) */
+
+.admin .icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.admin .btn--sm .icon {
+  width: 14px;
+  height: 14px;
+}
+
 /* ------------------------------- Botões -------------------------------- */
 
 .admin .btn {
@@ -117,20 +135,6 @@ body.admin {
   padding: 0;
   border-color: rgba(91, 60, 49, 0.18);
   background: rgba(255, 255, 255, 0.75);
-}
-
-.admin .btn--icon svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.admin .btn--icon svg circle {
-  fill: currentColor;
-  stroke: none;
 }
 
 .admin .btn[disabled] {
@@ -227,14 +231,8 @@ body.admin {
   background: var(--surface-low);
 }
 
-.admin .field__password svg {
-  width: 19px;
-  height: 19px;
-  fill: none;
-  stroke: currentColor;
+.admin .field__password .icon {
   stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .admin .color-well {
@@ -502,6 +500,9 @@ body.admin {
 }
 
 .admin .menu__list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 11px 14px;
   border: 0;
   border-radius: 12px;
@@ -511,6 +512,12 @@ body.admin {
   font-size: 0.85rem;
   font-weight: 700;
   text-align: left;
+}
+
+.admin .menu__list .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--terracotta);
 }
 
 .admin .menu__list button:hover {
@@ -850,10 +857,13 @@ body.admin {
   background: var(--ink);
   color: var(--white);
   cursor: pointer;
-  font-size: 0.62rem;
-  font-weight: 800;
-  line-height: 1;
   place-items: center;
+}
+
+.admin .dot-item button .icon {
+  width: 10px;
+  height: 10px;
+  stroke-width: 3;
 }
 
 .admin .drawer__foot {
@@ -1028,11 +1038,105 @@ body.admin {
     flex-wrap: wrap;
   }
 
+  /* Editor compacto no celular */
+
+  .admin .drawer__head {
+    padding: 12px 16px;
+  }
+
+  .admin .drawer__head h2 {
+    font-size: 1.05rem;
+  }
+
+  .admin .drawer__body {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .admin .drawer__preview {
+    max-width: none;
+  }
+
+  .admin .drawer__preview-label {
+    margin-bottom: 8px;
+    font-size: 0.6rem;
+  }
+
+  .admin .drawer__form {
+    gap: 12px;
+  }
+
+  .admin .group {
+    gap: 10px;
+    padding: 14px 12px;
+    border-radius: 16px;
+  }
+
+  .admin .group legend {
+    font-size: 0.56rem;
+  }
+
+  .admin .field {
+    gap: 4px;
+  }
+
+  .admin .field > span:first-child,
+  .admin .field__label {
+    font-size: 0.6rem;
+  }
+
+  /* 16px evita o zoom automático do iOS ao focar o campo */
+  .admin .field input[type="text"],
+  .admin .field input[type="password"],
+  .admin .field input[type="url"],
+  .admin .field textarea {
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  .admin .field-row {
+    gap: 10px;
+  }
+
+  .admin .color-well {
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+  }
+
+  .admin .color-well input[type="color"] {
+    width: 30px;
+    height: 30px;
+  }
+
+  .admin .color-well code {
+    font-size: 0.68rem;
+  }
+
+  .admin .hint {
+    font-size: 0.68rem;
+  }
+
+  .admin .check {
+    font-size: 0.78rem;
+  }
+
+  .admin .image-edit {
+    gap: 12px;
+  }
+
+  .admin .image-edit img {
+    width: 64px;
+    height: 80px;
+  }
+
   .admin .drawer__foot {
-    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
 
   .admin .drawer__foot .btn {
     flex: 1;
+    min-height: 46px;
   }
 }

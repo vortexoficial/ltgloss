@@ -25,6 +25,31 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 
+/* Ícones Lucide (mesmo padrão visual do projeto RASTREIO) */
+const svgIcon = (paths) =>
+  `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
+
+const ICONS = {
+  pencil: svgIcon(
+    '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  ),
+  arrowUp: svgIcon('<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>'),
+  arrowDown: svgIcon('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>'),
+  copy: svgIcon(
+    '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  ),
+  trash: svgIcon(
+    '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  ),
+  x: svgIcon('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+  eye: svgIcon(
+    '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  ),
+  eyeOff: svgIcon(
+    '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  ),
+};
+
 /* ------------------------------ Utilidades ------------------------------ */
 
 const slugify = (text) =>
@@ -295,21 +320,25 @@ const renderList = () => {
     info.append(name, meta);
 
     const actions = el("div", "product-item__actions");
-    const mkBtn = (label, action, title, primary) => {
-      const button = el("button", primary ? "btn btn--ghost btn--sm" : "btn btn--icon", label);
+    const mkBtn = (icon, label, action, title) => {
+      const button = el("button", label ? "btn btn--ghost btn--sm" : "btn btn--icon");
       button.type = "button";
       button.dataset.action = action;
       button.dataset.index = String(index);
       button.title = title;
       button.setAttribute("aria-label", title);
+      button.innerHTML = icon;
+      if (label) {
+        button.append(document.createTextNode(label));
+      }
       return button;
     };
     actions.append(
-      mkBtn("Editar", "edit", `Editar ${product.title || "produto"}`, true),
-      mkBtn("↑", "up", "Mover para cima"),
-      mkBtn("↓", "down", "Mover para baixo"),
-      mkBtn("⧉", "dup", "Duplicar produto"),
-      mkBtn("🗑", "del", "Excluir produto"),
+      mkBtn(ICONS.pencil, "Editar", "edit", `Editar ${product.title || "produto"}`),
+      mkBtn(ICONS.arrowUp, "", "up", "Mover para cima"),
+      mkBtn(ICONS.arrowDown, "", "down", "Mover para baixo"),
+      mkBtn(ICONS.copy, "", "dup", "Duplicar produto"),
+      mkBtn(ICONS.trash, "", "del", "Excluir produto"),
     );
 
     item.append(thumb, info, actions);
@@ -355,8 +384,9 @@ const renderDots = () => {
     input.value = /^#[0-9a-fA-F]{6}$/.test(color || "") ? color : "#b75f45";
     input.dataset.dotIndex = String(index);
     input.title = "Cor do tom";
-    const remove = el("button", "", "×");
+    const remove = el("button", "");
     remove.type = "button";
+    remove.innerHTML = ICONS.x;
     remove.dataset.dotRemove = String(index);
     remove.title = "Remover cor";
     remove.setAttribute("aria-label", "Remover cor");
@@ -435,7 +465,11 @@ const openEditor = (index) => {
   populateForm();
   $("editor").hidden = false;
   document.body.style.overflow = "hidden";
-  $("f-title").focus();
+  // Sempre abre no topo; foca sem rolar (e sem abrir o teclado no celular).
+  document.querySelector(".drawer__body").scrollTop = 0;
+  if (window.matchMedia("(min-width: 861px)").matches) {
+    $("f-title").focus({ preventScroll: true });
+  }
 };
 
 const closeEditor = () => {
@@ -630,7 +664,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("btn-toggle-password").addEventListener("click", () => {
     const input = $("login-password");
-    input.type = input.type === "password" ? "text" : "password";
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    $("btn-toggle-password").innerHTML = show ? ICONS.eyeOff : ICONS.eye;
     input.focus();
   });
 
