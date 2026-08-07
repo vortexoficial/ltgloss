@@ -182,7 +182,9 @@ const resolveImageSrc = (image) => {
   if (state.draft && state.draft.__pendingImage && src.endsWith(state.draft.__pendingImage.name)) {
     return state.draft.__pendingImage.dataUrl;
   }
-  return src;
+  // O products.json guarda caminhos relativos à raiz do site ("./assets/...");
+  // o painel roda em /admin/, então resolve a partir da raiz.
+  return src.replace(/^\.\//, "/");
 };
 
 const buildOfferCard = (product, index) => {

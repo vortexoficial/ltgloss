@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#fff8f6" />
+    <title>Painel · LT Gloss</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/admin.css" />
+    <script src="/admin.js" defer></script>
+  </head>
+
+  <body class="admin">
+    <!-- ============================== LOGIN ============================== -->
+    <div class="auth" id="view-login" hidden>
+      <form class="auth__card" id="login-form" novalidate>
+        <span class="auth__brand">LT <small>Gloss</small></span>
+        <h1>Painel de produtos</h1>
+        <p>Área restrita. Digite a senha de acesso para gerenciar as ofertas do site.</p>
+
+        <label class="field">
+          <span>Senha</span>
+          <span class="field__password">
+            <input
+              type="password"
+              id="login-password"
+              autocomplete="current-password"
+              placeholder="••••••••••"
+              required
+            />
+            <button type="button" id="btn-toggle-password" aria-label="Mostrar ou ocultar senha">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </span>
+        </label>
+
+        <p class="form-error" id="login-error" hidden></p>
+        <button class="btn btn--primary btn--full" type="submit" id="login-submit">Entrar no painel</button>
+      </form>
+      <p class="auth__foot">LT Gloss · acesso exclusivo da equipe</p>
+    </div>
+
+    <!-- ============================== PAINEL ============================= -->
+    <div class="panel" id="view-panel" hidden>
+      <header class="topbar">
+        <span class="topbar__brand">LT <small>Gloss</small><em>Painel</em></span>
+        <div class="topbar__actions">
+          <span class="topbar__dirty" id="dirty-status" hidden>
+            <span class="dot" aria-hidden="true"></span> Alterações não publicadas
+          </span>
+          <button class="btn btn--primary" id="btn-publish">Publicar no site</button>
+          <div class="menu">
+            <button class="btn btn--icon" id="btn-menu" aria-label="Mais opções" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" />
+              </svg>
+            </button>
+            <div class="menu__list" id="menu-list" hidden>
+              <button type="button" id="btn-reload">Recarregar do site</button>
+              <button type="button" id="btn-logout">Sair</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="panel__main">
+        <div class="panel__heading">
+          <div>
+            <h1>Produtos &amp; ofertas</h1>
+            <p id="products-count">Carregando produtos…</p>
+          </div>
+          <button class="btn btn--dark" id="btn-add">+ Adicionar produto</button>
+        </div>
+
+        <ul class="product-list" id="product-list" aria-label="Lista de produtos"></ul>
+
+        <p class="panel__hint">
+          As alterações só vão ao ar depois de clicar em <strong>Publicar no site</strong>.
+          Após publicar, o site atualiza em 1–2 minutos.
+        </p>
+      </main>
+    </div>
+
+    <!-- ============================== EDITOR ============================= -->
+    <div class="drawer" id="editor" hidden>
+      <div class="drawer__backdrop" data-close-editor></div>
+      <div class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+        <header class="drawer__head">
+          <h2 id="editor-title">Editar produto</h2>
+          <button class="btn btn--icon" type="button" data-close-editor aria-label="Fechar editor">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <aside class="drawer__preview">
+            <span class="drawer__preview-label">Pré-visualização ao vivo</span>
+            <div class="drawer__preview-slot" id="preview-slot"></div>
+          </aside>
+
+          <form class="drawer__form" id="editor-form" novalidate>
+            <fieldset class="group">
+              <legend>Imagem</legend>
+              <div class="image-edit">
+                <img id="editor-image-thumb" alt="Imagem atual do produto" />
+                <div class="image-edit__actions">
+                  <label class="btn btn--ghost btn--sm">
+                    Trocar imagem
+                    <input id="f-image" type="file" accept="image/*" hidden />
+                  </label>
+                  <p class="hint">Redimensionada e convertida para WebP automaticamente. Sobe para o site ao publicar.</p>
+                </div>
+              </div>
+              <label class="field">
+                <span>Descrição da imagem (acessibilidade)</span>
+                <input id="f-image-alt" type="text" placeholder="Ex.: LT Gloss Cacau" />
+              </label>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>Informações</legend>
+              <div class="field-row">
+                <label class="field">
+                  <span>Nome</span>
+                  <input id="f-title" type="text" placeholder="Ex.: LT Gloss" required />
+                </label>
+                <label class="field">
+                  <span>Complemento</span>
+                  <input id="f-subtitle" type="text" placeholder="Ex.: Pôr do Sol" />
+                </label>
+              </div>
+              <label class="field">
+                <span>Descrição curta</span>
+                <textarea id="f-description" rows="2" placeholder="Um tom quente e marcante…"></textarea>
+              </label>
+              <div class="field-row">
+                <label class="field">
+                  <span>Selo na foto</span>
+                  <input id="f-tag" type="text" placeholder="Ex.: 1 unidade" />
+                </label>
+                <label class="field">
+                  <span>Selo de promoção (opcional)</span>
+                  <input id="f-promo" type="text" placeholder="Ex.: Economize R$ 59,80" />
+                </label>
+              </div>
+              <label class="check">
+                <input id="f-featured" type="checkbox" />
+                <span>Destacar como oferta especial (borda e selos coloridos)</span>
+              </label>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>Tom do produto</legend>
+              <div class="field-row">
+                <label class="field">
+                  <span>Nome do tom</span>
+                  <input id="f-shade-label" type="text" placeholder="Ex.: Tom vibrante" />
+                </label>
+                <div class="field">
+                  <span class="field__label">Cores do tom (até 3)</span>
+                  <div class="dots-row">
+                    <div class="dots" id="dots-list"></div>
+                    <button type="button" class="btn btn--ghost btn--sm" id="btn-add-dot">+ cor</button>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>Preço</legend>
+              <div class="field-row">
+                <label class="field">
+                  <span>Preço (R$)</span>
+                  <input id="f-price" type="text" inputmode="decimal" placeholder="49,90" required />
+                </label>
+                <label class="field">
+                  <span>Preço antigo (opcional)</span>
+                  <input id="f-old-price" type="text" placeholder="Ex.: De R$ 149,70" />
+                </label>
+              </div>
+              <div class="field-row">
+                <label class="field">
+                  <span>Parcelamento / observação</span>
+                  <input id="f-installments" type="text" placeholder="Ex.: ou 2x de R$ 26,26" />
+                </label>
+                <label class="field field--color">
+                  <span>Cor do preço</span>
+                  <span class="color-well"><input id="f-price-color" type="color" value="#271713" /><code>#271713</code></span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>Botão de compra</legend>
+              <div class="field-row">
+                <label class="field">
+                  <span>Texto do botão</span>
+                  <input id="f-cta-text" type="text" placeholder="Ex.: Comprar Cacau" required />
+                </label>
+                <label class="field">
+                  <span>Link de checkout</span>
+                  <input id="f-cta-href" type="url" placeholder="https://…" required />
+                </label>
+              </div>
+              <div class="field-row field-row--colors">
+                <label class="field field--color">
+                  <span>Cor inicial</span>
+                  <span class="color-well"><input id="f-cta-from" type="color" value="#b75f45" /><code>#b75f45</code></span>
+                </label>
+                <label class="field field--color">
+                  <span>Cor final</span>
+                  <span class="color-well"><input id="f-cta-to" type="color" value="#593426" /><code>#593426</code></span>
+                </label>
+                <label class="field field--color">
+                  <span>Cor do texto</span>
+                  <span class="color-well"><input id="f-cta-textcolor" type="color" value="#ffffff" /><code>#ffffff</code></span>
+                </label>
+              </div>
+              <p class="hint">O botão usa um degradê da cor inicial para a final. Para cor sólida, use a mesma cor nas duas.</p>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>Cores do card</legend>
+              <div class="field-row field-row--colors">
+                <label class="field field--color">
+                  <span>Cor principal</span>
+                  <span class="color-well"><input id="f-accent" type="color" value="#b75f45" /><code>#b75f45</code></span>
+                </label>
+                <label class="field field--color">
+                  <span>Cor secundária</span>
+                  <span class="color-well"><input id="f-accent-dark" type="color" value="#593426" /><code>#593426</code></span>
+                </label>
+              </div>
+              <p class="hint">Usadas no brilho ao passar o mouse, nos selos coloridos e nos detalhes do card.</p>
+            </fieldset>
+
+            <p class="form-error" id="editor-error" hidden></p>
+          </form>
+        </div>
+
+        <footer class="drawer__foot">
+          <button class="btn btn--ghost" type="button" data-close-editor>Cancelar</button>
+          <button class="btn btn--primary" type="submit" form="editor-form" id="btn-save-product">
+            Salvar produto
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ========================== PUBLICAÇÃO ============================ -->
+    <div class="overlay" id="publish-overlay" hidden>
+      <div class="overlay__card">
+        <div class="overlay__spinner" id="publish-spinner" aria-hidden="true"></div>
+        <h2 id="publish-title">Publicando…</h2>
+        <p id="publish-message">Enviando alterações para o site.</p>
+        <button class="btn btn--primary" id="btn-publish-close" hidden>Fechar</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+  </body>
+</html>
