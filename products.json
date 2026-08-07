@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-07T00:00:00.000Z",
+  "updatedAt": "2026-08-07T17:59:48.376Z",
   "products": [
     {
       "id": "por-do-sol",
@@ -14,7 +14,9 @@
       },
       "shade": {
         "label": "Tom vibrante",
-        "dots": ["#f05b13"]
+        "dots": [
+          "#f05b13"
+        ]
       },
       "title": "LT Gloss",
       "subtitle": "Pôr do Sol",
@@ -48,7 +50,9 @@
       },
       "shade": {
         "label": "Tom terroso",
-        "dots": ["#713018"]
+        "dots": [
+          "#713018"
+        ]
       },
       "title": "LT Gloss",
       "subtitle": "Cacau",
@@ -82,7 +86,9 @@
       },
       "shade": {
         "label": "Tom delicado",
-        "dots": ["#ccecf7"]
+        "dots": [
+          "#ccecf7"
+        ]
       },
       "title": "LT Gloss",
       "subtitle": "Véu",
@@ -116,13 +122,17 @@
       },
       "shade": {
         "label": "Leve os três",
-        "dots": ["#f05b13", "#713018", "#ccecf7"]
+        "dots": [
+          "#f05b13",
+          "#713018",
+          "#ccecf7"
+        ]
       },
       "title": "Kit Leve 3",
       "subtitle": "1 de cada cor",
       "description": "Pôr do Sol, Cacau e Véu juntos em uma promoção especial.",
       "oldPrice": "De R$ 149,70",
-      "price": "89,90",
+      "price": "79,90",
       "installments": "ou 2x de R$ 47,32",
       "colors": {
         "accent": "#d49a55",
@@ -150,7 +160,11 @@
       },
       "shade": {
         "label": "3x Cacau",
-        "dots": ["#713018", "#713018", "#713018"]
+        "dots": [
+          "#713018",
+          "#713018",
+          "#713018"
+        ]
       },
       "title": "Kit Cacau",
       "subtitle": "Leve 3 unidades",
