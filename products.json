@@ -1,0 +1,175 @@
+{
+  "updatedAt": "2026-08-07T00:00:00.000Z",
+  "products": [
+    {
+      "id": "por-do-sol",
+      "tag": "1 unidade",
+      "featured": false,
+      "promo": "",
+      "image": {
+        "src": "./assets/por-do-sol.webp",
+        "alt": "LT Gloss Pôr do Sol",
+        "width": 1086,
+        "height": 1448
+      },
+      "shade": {
+        "label": "Tom vibrante",
+        "dots": ["#f05b13"]
+      },
+      "title": "LT Gloss",
+      "subtitle": "Pôr do Sol",
+      "description": "Um tom quente e marcante para iluminar os lábios.",
+      "oldPrice": "",
+      "price": "49,90",
+      "installments": "1x de R$ 49,90",
+      "colors": {
+        "accent": "#ee5a12",
+        "accentDark": "#9d300d",
+        "price": "#c8430e"
+      },
+      "cta": {
+        "text": "Comprar Pôr do Sol",
+        "href": "https://ev.braip.com/checkout/pla0xexw/chex0ork",
+        "from": "#ee5a12",
+        "to": "#9d300d",
+        "textColor": "#ffffff"
+      }
+    },
+    {
+      "id": "cacau",
+      "tag": "1 unidade",
+      "featured": false,
+      "promo": "",
+      "image": {
+        "src": "./assets/cacau.webp",
+        "alt": "LT Gloss Cacau",
+        "width": 1086,
+        "height": 1448
+      },
+      "shade": {
+        "label": "Tom terroso",
+        "dots": ["#713018"]
+      },
+      "title": "LT Gloss",
+      "subtitle": "Cacau",
+      "description": "Um tom terroso e versátil para acompanhar sua rotina.",
+      "oldPrice": "",
+      "price": "49,90",
+      "installments": "ou 2x de R$ 26,26",
+      "colors": {
+        "accent": "#7b351b",
+        "accentDark": "#35150d",
+        "price": "#682713"
+      },
+      "cta": {
+        "text": "Comprar Cacau",
+        "href": "https://ev.braip.com/checkout/pla89jv1/chex0ork",
+        "from": "#7b351b",
+        "to": "#35150d",
+        "textColor": "#ffffff"
+      }
+    },
+    {
+      "id": "veu",
+      "tag": "1 unidade",
+      "featured": false,
+      "promo": "",
+      "image": {
+        "src": "./assets/vel.webp",
+        "alt": "LT Gloss Véu",
+        "width": 1086,
+        "height": 1448
+      },
+      "shade": {
+        "label": "Tom delicado",
+        "dots": ["#ccecf7"]
+      },
+      "title": "LT Gloss",
+      "subtitle": "Véu",
+      "description": "Um brilho delicado para um acabamento leve e luminoso.",
+      "oldPrice": "",
+      "price": "49,90",
+      "installments": "ou 2x de R$ 26,26",
+      "colors": {
+        "accent": "#a8d9ed",
+        "accentDark": "#5c98b2",
+        "price": "#4d89a3"
+      },
+      "cta": {
+        "text": "Comprar Véu",
+        "href": "https://ev.braip.com/checkout/pla98ne4/chex0ork",
+        "from": "#e9f8ff",
+        "to": "#a8d9ed",
+        "textColor": "#173746"
+      }
+    },
+    {
+      "id": "kit-leve-3",
+      "tag": "Oferta especial",
+      "featured": true,
+      "promo": "Economize R$ 59,80",
+      "image": {
+        "src": "./assets/kit.webp",
+        "alt": "Kit com três LT Gloss, um de cada cor",
+        "width": 1086,
+        "height": 1448
+      },
+      "shade": {
+        "label": "Leve os três",
+        "dots": ["#f05b13", "#713018", "#ccecf7"]
+      },
+      "title": "Kit Leve 3",
+      "subtitle": "1 de cada cor",
+      "description": "Pôr do Sol, Cacau e Véu juntos em uma promoção especial.",
+      "oldPrice": "De R$ 149,70",
+      "price": "89,90",
+      "installments": "ou 2x de R$ 47,32",
+      "colors": {
+        "accent": "#d49a55",
+        "accentDark": "#704526",
+        "price": "#b75f45"
+      },
+      "cta": {
+        "text": "Aproveitar promoção",
+        "href": "https://ev.braip.com/checkout/plae6pv6/chex0ork",
+        "from": "#d49a55",
+        "to": "#704526",
+        "textColor": "#ffffff"
+      }
+    },
+    {
+      "id": "kit-cacau",
+      "tag": "Oferta especial",
+      "featured": true,
+      "promo": "Economize R$ 59,80",
+      "image": {
+        "src": "./assets/kitcacau.webp",
+        "alt": "Kit com três LT Gloss Cacau",
+        "width": 1122,
+        "height": 1402
+      },
+      "shade": {
+        "label": "3x Cacau",
+        "dots": ["#713018", "#713018", "#713018"]
+      },
+      "title": "Kit Cacau",
+      "subtitle": "Leve 3 unidades",
+      "description": "Três LT Gloss Cacau, o tom terroso favorito, em uma promoção especial.",
+      "oldPrice": "De R$ 149,70",
+      "price": "89,90",
+      "installments": "ou 2x de R$ 47,32 · 3x de R$ 32,08",
+      "colors": {
+        "accent": "#8a3d1f",
+        "accentDark": "#35150d",
+        "price": "#b75f45"
+      },
+      "cta": {
+        "text": "Aproveitar promoção",
+        "href": "https://ev.braip.com/checkout/plar4v4w/chex0ork?currency=BRL",
+        "from": "#8a3d1f",
+        "to": "#35150d",
+        "textColor": "#ffffff"
+      }
+    }
+  ]
+}

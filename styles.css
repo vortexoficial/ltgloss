@@ -884,7 +884,7 @@ input:focus-visible {
 
 .offers__grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--offers-cols, 5), minmax(0, 1fr));
   gap: clamp(14px, 1.8vw, 24px);
   align-items: stretch;
 }
@@ -2329,4 +2329,49 @@ details[open] p {
   .review-card[aria-hidden="true"] {
     display: none;
   }
+}
+
+/* -------------------------------------------------------------------------
+   Cards de oferta dinâmicos (renderizados a partir de products.json)
+------------------------------------------------------------------------- */
+
+.offer-card.is-dyn:hover {
+  border-color: var(--offer-accent);
+  box-shadow: 0 26px 64px var(--offer-glow);
+}
+
+.offer-card.is-dyn .offer-card__price strong {
+  color: var(--price-color, var(--ink));
+}
+
+.offer-card.is-dyn .offer-card__promo {
+  background: linear-gradient(135deg, var(--offer-accent), var(--offer-accent-dark));
+  box-shadow: 0 8px 18px var(--offer-glow);
+}
+
+.offer-card.is-dyn .offer-card__cta {
+  background: linear-gradient(135deg, var(--cta-from, var(--ink)), var(--cta-to, var(--ink)));
+  box-shadow: 0 12px 24px var(--offer-glow);
+  color: var(--cta-text, var(--white));
+}
+
+.offer-card.is-dyn .offer-card__cta:hover {
+  background: linear-gradient(135deg, var(--cta-to, var(--ink)), var(--cta-from, var(--ink)));
+  box-shadow: 0 16px 30px var(--offer-glow);
+}
+
+.offer-card.is-dyn.is-featured {
+  border-color: var(--offer-border);
+  background:
+    radial-gradient(circle at 90% 90%, var(--offer-soft), transparent 38%),
+    var(--white);
+  box-shadow:
+    0 0 0 3px var(--offer-ring),
+    0 22px 60px rgba(117, 64, 46, 0.22);
+}
+
+.offer-card.is-dyn.is-featured .offer-card__tag {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: linear-gradient(135deg, var(--offer-accent), var(--offer-accent-dark));
+  color: var(--white);
 }
