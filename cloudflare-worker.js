@@ -9,7 +9,9 @@
 ========================================================================= */
 
 const OWNER = "vortexoficial";
-const REPO = "ltgloss";
+/* Publica nos dois sites: ltgloss.com (repo ltgloss) e ltgloss.com.br (repo ltglossbr).
+   O primeiro repo da lista é o "principal" — é dele que o painel lê os produtos. */
+const REPOS = ["ltgloss", "ltglossbr"];
 const BRANCH = "main";
 const DATA_PATH = "products.json";
 const ASSETS_DIR = "assets";
@@ -17,6 +19,8 @@ const ASSETS_DIR = "assets";
 const ALLOWED_ORIGINS = [
   "https://ltgloss.com",
   "https://www.ltgloss.com",
+  "https://ltgloss.com.br",
+  "https://www.ltgloss.com.br",
   "http://localhost:4173",
 ];
 
@@ -52,8 +56,8 @@ const timingSafeEqual = (a, b) => {
   return diff === 0;
 };
 
-const gh = async (env, path, options = {}) => {
-  const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/${path}`, {
+const gh = async (env, repo, path, options = {}) => {
+  const response = await fetch(`https://api.github.com/repos/${OWNER}/${repo}/${path}`, {
     ...options,
     headers: {
       Accept: "application/vnd.github+json",
@@ -77,9 +81,9 @@ const gh = async (env, path, options = {}) => {
   return response.status === 204 ? null : response.json();
 };
 
-const getFileSha = async (env, path) => {
+const getFileSha = async (env, repo, path) => {
   try {
-    const file = await gh(env, `contents/${path}?ref=${encodeURIComponent(BRANCH)}`);
+    const file = await gh(env, repo, `contents/${path}?ref=${encodeURIComponent(BRANCH)}`);
     return file.sha;
   } catch (error) {
     if (error.status === 404) return null;
@@ -109,7 +113,7 @@ const base64ToUtf8 = (base64) => {
 
 const handleLoad = async (env, origin) => {
   try {
-    const file = await gh(env, `contents/${DATA_PATH}?ref=${encodeURIComponent(BRANCH)}`);
+    const file = await gh(env, REPOS[0], `contents/${DATA_PATH}?ref=${encodeURIComponent(BRANCH)}`);
     const data = JSON.parse(base64ToUtf8(file.content));
     return json(200, { products: Array.isArray(data.products) ? data.products : [] }, origin);
   } catch (error) {
@@ -142,31 +146,35 @@ const handlePublish = async (env, origin, body) => {
     }
   }
 
-  for (const image of images) {
-    const path = `${ASSETS_DIR}/${image.name}`;
-    const sha = await getFileSha(env, path);
-    await gh(env, `contents/${path}`, {
+  const payload = { updatedAt: new Date().toISOString(), products };
+  const content = utf8ToBase64(`${JSON.stringify(payload, null, 2)}\n`);
+
+  for (const repo of REPOS) {
+    for (const image of images) {
+      const path = `${ASSETS_DIR}/${image.name}`;
+      const sha = await getFileSha(env, repo, path);
+      await gh(env, repo, `contents/${path}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          message: `Painel: adiciona imagem ${image.name}`,
+          content: image.base64,
+          branch: BRANCH,
+          ...(sha ? { sha } : {}),
+        }),
+      });
+    }
+
+    const sha = await getFileSha(env, repo, DATA_PATH);
+    await gh(env, repo, `contents/${DATA_PATH}`, {
       method: "PUT",
       body: JSON.stringify({
-        message: `Painel: adiciona imagem ${image.name}`,
-        content: image.base64,
+        message: "Painel: atualiza produtos e ofertas",
+        content,
         branch: BRANCH,
         ...(sha ? { sha } : {}),
       }),
     });
   }
-
-  const sha = await getFileSha(env, DATA_PATH);
-  const payload = { updatedAt: new Date().toISOString(), products };
-  await gh(env, `contents/${DATA_PATH}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      message: "Painel: atualiza produtos e ofertas",
-      content: utf8ToBase64(`${JSON.stringify(payload, null, 2)}\n`),
-      branch: BRANCH,
-      ...(sha ? { sha } : {}),
-    }),
-  });
 
   return json(200, { ok: true }, origin);
 };
