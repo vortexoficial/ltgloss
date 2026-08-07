@@ -8,7 +8,7 @@
 ========================================================================= */
 
 const ADMIN = {
-  workerUrl: "https://COLE-A-URL-DO-WORKER-AQUI.workers.dev",
+  workerUrl: "https://ltgloss-painel.indesignleandro.workers.dev",
   storageDraft: "ltg_admin_draft",
   assetsDir: "assets",
   maxImageSize: 1200,
