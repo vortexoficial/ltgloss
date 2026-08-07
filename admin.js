@@ -2,27 +2,20 @@
 
 /* =========================================================================
    Painel administrativo · LT Gloss
-   - Login por senha (PBKDF2; nenhuma senha fica em texto no código)
-   - Token do GitHub criptografado (AES-GCM) com a chave derivada da senha
-   - Edita products.json e publica direto no repositório (GitHub Pages)
+   - Login por senha, validada no servidor (Cloudflare Worker)
+   - O Worker guarda o token do GitHub como segredo e publica no repositório
+   - Nenhum segredo passa pelo navegador nem fica salvo neste código
 ========================================================================= */
 
 const ADMIN = {
-  verifierHex: "15e17b8dd36d28f9061d5b349dac30ce42179416bde17ba23cec9f7fb82e13dd",
-  saltVerify: "ltgloss::verify::v1",
-  saltKey: "ltgloss::key::v1",
-  iterations: 310000,
-  storageGh: "ltg_admin_gh",
+  workerUrl: "https://COLE-A-URL-DO-WORKER-AQUI.workers.dev",
   storageDraft: "ltg_admin_draft",
-  defaults: { owner: "vortexoficial", repo: "ltgloss", branch: "main" },
-  dataPath: "products.json",
   assetsDir: "assets",
   maxImageSize: 1200,
 };
 
 const state = {
-  key: null, // CryptoKey AES derivada da senha
-  gh: null, // { owner, repo, branch, token }
+  password: null, // mantida só em memória durante a sessão
   products: [],
   dirty: false,
   editingIndex: -1,
@@ -31,31 +24,8 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder();
 
 /* ------------------------------ Utilidades ------------------------------ */
-
-const bytesToBase64 = (bytes) => {
-  let binary = "";
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-  }
-  return btoa(binary);
-};
-
-const base64ToBytes = (base64) => {
-  const binary = atob(base64.replace(/\s/g, ""));
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-};
-
-const bufToHex = (buffer) =>
-  [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
 
 const slugify = (text) =>
   String(text || "produto")
@@ -95,104 +65,40 @@ const showError = (id, message) => {
   node.hidden = !message;
 };
 
-/* ------------------------------ Criptografia ---------------------------- */
+/* --------------------------- API (Cloudflare) ---------------------------- */
 
-const pbkdf2 = async (password, salt) => {
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    textEncoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
-  return crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: textEncoder.encode(salt), iterations: ADMIN.iterations, hash: "SHA-256" },
-    keyMaterial,
-    256,
-  );
-};
-
-const deriveAesKey = async (password) => {
-  const bits = await pbkdf2(password, ADMIN.saltKey);
-  return crypto.subtle.importKey("raw", bits, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
-};
-
-const encryptText = async (key, text) => {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, textEncoder.encode(text));
-  return { iv: bytesToBase64(iv), ct: bytesToBase64(new Uint8Array(cipher)) };
-};
-
-const decryptText = async (key, payload) => {
-  const plain = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: base64ToBytes(payload.iv) },
-    key,
-    base64ToBytes(payload.ct),
-  );
-  return textDecoder.decode(plain);
-};
-
-/* ------------------------------ GitHub API ------------------------------ */
-
-const gh = async (path, options = {}) => {
-  const response = await fetch(
-    `https://api.github.com/repos/${state.gh.owner}/${state.gh.repo}/${path}`,
-    {
-      ...options,
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${state.gh.token}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        ...(options.headers || {}),
-      },
-    },
-  );
+const api = async (path, body = {}) => {
+  const base = ADMIN.workerUrl.replace(/\/+$/, "");
+  let response;
+  try {
+    response = await fetch(`${base}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: state.password, ...body }),
+    });
+  } catch (error) {
+    throw new Error("Não foi possível conectar ao servidor de publicação. Verifique a internet e tente de novo.");
+  }
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (error) {
+    /* corpo vazio */
+  }
   if (!response.ok) {
-    let message = "";
-    try {
-      message = (await response.json()).message || "";
-    } catch (error) {
-      /* corpo vazio */
-    }
-    const err = new Error(message || `Erro ${response.status} na API do GitHub.`);
+    const err = new Error((data && data.message) || `Erro ${response.status}.`);
     err.status = response.status;
     throw err;
   }
-  return response.status === 204 ? null : response.json();
+  return data;
 };
-
-const fetchRemoteSha = async () => {
-  try {
-    const file = await gh(`contents/${ADMIN.dataPath}?ref=${encodeURIComponent(state.gh.branch)}`);
-    return file.sha;
-  } catch (error) {
-    if (error.status === 404) return null;
-    throw error;
-  }
-};
-
-/* ------------------------- Carregar / salvar dados ---------------------- */
 
 const loadProducts = async () => {
-  try {
-    const file = await gh(`contents/${ADMIN.dataPath}?ref=${encodeURIComponent(state.gh.branch)}`);
-    const data = JSON.parse(textDecoder.decode(base64ToBytes(file.content)));
-    state.products = Array.isArray(data.products) ? data.products : [];
-    return;
-  } catch (error) {
-    if (error.status !== 404) {
-      console.warn("Falha ao carregar via API, tentando arquivo local.", error);
-    }
-  }
-  try {
-    const response = await fetch(`./${ADMIN.dataPath}`, { cache: "no-cache" });
-    const data = await response.json();
-    state.products = Array.isArray(data.products) ? data.products : [];
-  } catch (error) {
-    state.products = [];
-    toast("Não foi possível carregar os produtos. Verifique a conexão.");
-  }
+  const data = await api("/api/load");
+  state.products = Array.isArray(data.products) ? data.products : [];
 };
+
+/* --------------------------- Rascunho local ------------------------------ */
 
 const persistDraft = () => {
   const payload = { products: state.products, pendingImages: state.pendingImages };
@@ -253,7 +159,7 @@ const markClean = () => {
 /* ------------------------------- Views ---------------------------------- */
 
 const showView = (name) => {
-  ["view-login", "view-connect", "view-panel"].forEach((id) => {
+  ["view-login", "view-panel"].forEach((id) => {
     $(id).hidden = id !== `view-${name}`;
   });
 };
@@ -642,44 +548,18 @@ const publish = async () => {
   spinner.className = "overlay__spinner";
   closeBtn.hidden = true;
   title.textContent = "Publicando…";
+  message.textContent = "Enviando alterações para o site.";
 
   try {
-    const images = collectUsedPendingImages();
-    const names = Object.keys(images);
-    for (let i = 0; i < names.length; i += 1) {
-      const name = names[i];
-      message.textContent = `Enviando imagem ${i + 1} de ${names.length}…`;
-      const path = `${ADMIN.assetsDir}/${name}`;
-      let sha;
-      try {
-        const existing = await gh(`contents/${path}?ref=${encodeURIComponent(state.gh.branch)}`);
-        sha = existing.sha;
-      } catch (error) {
-        sha = undefined;
-      }
-      await gh(`contents/${path}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          message: `Painel: adiciona imagem ${name}`,
-          content: images[name].dataUrl.split(",")[1],
-          branch: state.gh.branch,
-          ...(sha ? { sha } : {}),
-        }),
-      });
+    const pending = collectUsedPendingImages();
+    const images = Object.keys(pending).map((name) => ({
+      name,
+      base64: pending[name].dataUrl.split(",")[1],
+    }));
+    if (images.length) {
+      message.textContent = `Enviando ${images.length} imagem${images.length > 1 ? "ns" : ""} e a lista de produtos…`;
     }
-
-    message.textContent = "Atualizando a lista de produtos…";
-    const sha = await fetchRemoteSha();
-    const payload = { updatedAt: new Date().toISOString(), products: state.products };
-    await gh(`contents/${ADMIN.dataPath}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        message: "Painel: atualiza produtos e ofertas",
-        content: bytesToBase64(textEncoder.encode(`${JSON.stringify(payload, null, 2)}\n`)),
-        branch: state.gh.branch,
-        ...(sha ? { sha } : {}),
-      }),
-    });
+    await api("/api/publish", { products: state.products, images });
 
     state.pendingImages = {};
     markClean();
@@ -690,7 +570,7 @@ const publish = async () => {
   } catch (error) {
     spinner.className = "overlay__spinner is-done is-error";
     title.textContent = "Não foi possível publicar";
-    message.textContent = `${error.message || error}. Suas alterações continuam salvas aqui no painel — tente de novo.`;
+    message.textContent = `${error.message || error} Suas alterações continuam salvas aqui no painel — tente de novo.`;
   }
   closeBtn.hidden = false;
 };
@@ -698,10 +578,8 @@ const publish = async () => {
 /* ----------------------------- Autenticação ------------------------------ */
 
 const openPanel = async () => {
-  showView("panel");
-  $("products-count").textContent = "Carregando produtos…";
-  $("product-list").textContent = "";
   await loadProducts();
+  showView("panel");
   restoreDraftIfAny();
   $("dirty-status").hidden = !state.dirty;
   renderList();
@@ -716,89 +594,25 @@ const handleLogin = async (event) => {
   submit.textContent = "Verificando…";
   showError("login-error", "");
   try {
-    const hex = bufToHex(await pbkdf2(password, ADMIN.saltVerify));
-    if (hex !== ADMIN.verifierHex) {
-      showError("login-error", "Senha incorreta. Tente novamente.");
-      return;
-    }
-    state.key = await deriveAesKey(password);
+    state.password = password;
+    await openPanel();
+    localStorage.removeItem("ltg_admin_gh"); // limpa configuração do fluxo antigo por token
     $("login-password").value = "";
-
-    const stored = localStorage.getItem(ADMIN.storageGh);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        const token = await decryptText(state.key, parsed);
-        state.gh = {
-          owner: parsed.owner || ADMIN.defaults.owner,
-          repo: parsed.repo || ADMIN.defaults.repo,
-          branch: parsed.branch || ADMIN.defaults.branch,
-          token,
-        };
-        await openPanel();
-        return;
-      } catch (error) {
-        localStorage.removeItem(ADMIN.storageGh);
-      }
-    }
-    $("btn-connect-back").hidden = true;
-    showView("connect");
+  } catch (error) {
+    state.password = null;
+    showView("login");
+    showError(
+      "login-error",
+      error.status === 401 ? "Senha incorreta. Tente novamente." : error.message,
+    );
   } finally {
     submit.disabled = false;
     submit.textContent = "Entrar no painel";
   }
 };
 
-const handleConnect = async (event) => {
-  event.preventDefault();
-  const token = $("gh-token").value.trim();
-  const owner = $("gh-owner").value.trim();
-  const repo = $("gh-repo").value.trim();
-  const branch = $("gh-branch").value.trim() || "main";
-  const submit = $("connect-submit");
-  showError("connect-error", "");
-
-  if (!token || !owner || !repo) {
-    showError("connect-error", "Preencha o token, o usuário e o repositório.");
-    return;
-  }
-
-  submit.disabled = true;
-  submit.textContent = "Validando…";
-  try {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${token}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Não foi possível acessar o repositório. Confira o token e os dados.");
-    }
-    const info = await response.json();
-    if (!info.permissions || !info.permissions.push) {
-      throw new Error("Este token não tem permissão de escrita. Crie com Contents: Read and write.");
-    }
-    const encrypted = await encryptText(state.key, token);
-    localStorage.setItem(
-      ADMIN.storageGh,
-      JSON.stringify({ owner, repo, branch, iv: encrypted.iv, ct: encrypted.ct }),
-    );
-    state.gh = { owner, repo, branch, token };
-    $("gh-token").value = "";
-    await openPanel();
-  } catch (error) {
-    showError("connect-error", error.message || "Falha ao validar. Tente novamente.");
-  } finally {
-    submit.disabled = false;
-    submit.textContent = "Validar e salvar";
-  }
-};
-
 const logout = () => {
-  state.key = null;
-  state.gh = null;
+  state.password = null;
   state.products = [];
   state.pendingImages = {};
   state.dirty = false;
@@ -811,16 +625,11 @@ document.addEventListener("DOMContentLoaded", () => {
   showView("login");
 
   $("login-form").addEventListener("submit", handleLogin);
-  $("connect-form").addEventListener("submit", handleConnect);
 
   $("btn-toggle-password").addEventListener("click", () => {
     const input = $("login-password");
     input.type = input.type === "password" ? "text" : "password";
     input.focus();
-  });
-
-  $("btn-connect-back").addEventListener("click", () => {
-    showView("panel");
   });
 
   /* Menu do topo */
@@ -842,21 +651,15 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       return;
     }
-    state.pendingImages = {};
-    markClean();
-    await loadProducts();
-    renderList();
-    toast("Produtos recarregados do site.");
-  });
-
-  $("btn-settings").addEventListener("click", () => {
-    $("menu-list").hidden = true;
-    $("gh-owner").value = state.gh ? state.gh.owner : ADMIN.defaults.owner;
-    $("gh-repo").value = state.gh ? state.gh.repo : ADMIN.defaults.repo;
-    $("gh-branch").value = state.gh ? state.gh.branch : ADMIN.defaults.branch;
-    $("btn-connect-back").hidden = false;
-    showError("connect-error", "");
-    showView("connect");
+    try {
+      await loadProducts();
+      state.pendingImages = {};
+      markClean();
+      renderList();
+      toast("Produtos recarregados do site.");
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
   $("btn-logout").addEventListener("click", () => {
@@ -933,9 +736,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target.type === "color") {
       const code = event.target.parentElement.querySelector("code");
       if (code) code.textContent = event.target.value;
-    }
-    if (event.target.dataset.dotIndex !== undefined) {
-      state.draft.shade.dots[Number(event.target.dataset.dotIndex)] = event.target.value;
     }
     readForm();
     renderPreview();

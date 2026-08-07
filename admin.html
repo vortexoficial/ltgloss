@@ -52,60 +52,6 @@
       <p class="auth__foot">LT Gloss · acesso exclusivo da equipe</p>
     </div>
 
-    <!-- ========================= CONEXÃO GITHUB ========================== -->
-    <div class="auth" id="view-connect" hidden>
-      <form class="auth__card auth__card--wide" id="connect-form" novalidate>
-        <span class="auth__brand">LT <small>Gloss</small></span>
-        <h1>Conectar publicação</h1>
-        <p>
-          Para publicar as alterações direto no site, o painel precisa de um token do GitHub.
-          Isso é feito <strong>uma única vez</strong> neste navegador — o token fica salvo
-          criptografado com a sua senha.
-        </p>
-
-        <details class="howto">
-          <summary>Como criar o token (passo a passo)</summary>
-          <ol>
-            <li>
-              Acesse
-              <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">
-                github.com/settings/personal-access-tokens/new</a
-              > logado na conta dona do repositório.
-            </li>
-            <li>Em <strong>Repository access</strong>, escolha <em>Only select repositories</em> e selecione o repositório do site.</li>
-            <li>Em <strong>Permissions → Repository permissions</strong>, defina <strong>Contents</strong> como <em>Read and write</em>.</li>
-            <li>Clique em <strong>Generate token</strong> e copie o código (começa com <code>github_pat_</code>).</li>
-          </ol>
-        </details>
-
-        <label class="field">
-          <span>Token do GitHub</span>
-          <input id="gh-token" type="password" placeholder="github_pat_..." autocomplete="off" required />
-        </label>
-
-        <div class="field-row">
-          <label class="field">
-            <span>Usuário / organização</span>
-            <input id="gh-owner" type="text" value="vortexoficial" required />
-          </label>
-          <label class="field">
-            <span>Repositório</span>
-            <input id="gh-repo" type="text" value="ltgloss" required />
-          </label>
-          <label class="field">
-            <span>Branch</span>
-            <input id="gh-branch" type="text" value="main" required />
-          </label>
-        </div>
-
-        <p class="form-error" id="connect-error" hidden></p>
-        <div class="auth__actions">
-          <button class="btn btn--ghost" type="button" id="btn-connect-back" hidden>Voltar</button>
-          <button class="btn btn--primary" type="submit" id="connect-submit">Validar e salvar</button>
-        </div>
-      </form>
-    </div>
-
     <!-- ============================== PAINEL ============================= -->
     <div class="panel" id="view-panel" hidden>
       <header class="topbar">
@@ -123,7 +69,6 @@
             </button>
             <div class="menu__list" id="menu-list" hidden>
               <button type="button" id="btn-reload">Recarregar do site</button>
-              <button type="button" id="btn-settings">Configurar publicação</button>
               <button type="button" id="btn-logout">Sair</button>
             </div>
           </div>
