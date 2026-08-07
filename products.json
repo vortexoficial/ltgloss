@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-07T18:05:15.755Z",
+  "updatedAt": "2026-08-07T18:17:28.480Z",
   "products": [
     {
       "id": "por-do-sol",
@@ -133,7 +133,7 @@
       "description": "Pôr do Sol, Cacau e Véu juntos em uma promoção especial.",
       "oldPrice": "De R$ 149,70",
       "price": "79,90",
-      "installments": "ou 5x sem juros",
+      "installments": "ou 2x de R$ 47,32",
       "colors": {
         "accent": "#d49a55",
         "accentDark": "#704526",
